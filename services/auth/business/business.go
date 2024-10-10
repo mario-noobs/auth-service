@@ -3,8 +3,10 @@ package business
 import (
 	"context"
 	"demo-service/common"
+	"demo-service/proto/pb"
 	"demo-service/services/auth/entity"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/google/uuid"
 	"github.com/viettranx/service-context/core"
 )
@@ -41,7 +43,7 @@ func NewBusiness(repository AuthRepository, userRepository UserRepository,
 	}
 }
 
-func (biz *business) Login(ctx context.Context, data *entity.AuthEmailPassword) (*entity.TokenResponse, error) {
+func (biz *business) Login(ctx context.Context, data *pb.AuthEmailPassword) (*pb.TokenResponse, error) {
 	if err := data.Validate(); err != nil {
 		return nil, core.ErrBadRequest.WithError(err.Error())
 	}
@@ -51,7 +53,7 @@ func (biz *business) Login(ctx context.Context, data *entity.AuthEmailPassword) 
 	if err != nil {
 		return nil, core.ErrBadRequest.WithError(entity.ErrLoginFailed.Error()).WithDebug(err.Error())
 	}
-	
+
 	if !biz.hasher.CompareHashPassword(authData.Password, authData.Salt, data.Password) {
 		return nil, core.ErrBadRequest.WithError(entity.ErrLoginFailed.Error())
 	}
@@ -66,52 +68,54 @@ func (biz *business) Login(ctx context.Context, data *entity.AuthEmailPassword) 
 		return nil, core.ErrInternalServerError.WithError(entity.ErrLoginFailed.Error()).WithDebug(err.Error())
 	}
 
-	return &entity.TokenResponse{
-		AccessToken: entity.Token{
-			Token:     tokenStr,
-			ExpiredIn: expSecs,
-		},
+	token := pb.Token{
+		Token:     tokenStr,
+		ExpiredIn: int32(expSecs),
+	}
+
+	return &pb.TokenResponse{
+		AccessToken: &token,
 	}, nil
 }
 
-func (biz *business) Register(ctx context.Context, data *entity.AuthRegister) error {
+func (biz *business) Register(ctx context.Context, data *pb.AuthRegister) (*empty.Empty, error) {
 	if err := data.Validate(); err != nil {
-		return core.ErrBadRequest.WithError(err.Error())
+		return nil, core.ErrBadRequest.WithError(err.Error())
 	}
 
-	_, err := biz.repository.GetAuth(ctx, data.Email)
+	_, err := biz.repository.GetAuth(ctx, data.AuthEmailPassword.Email)
 
 	if err == nil {
-		return core.ErrBadRequest.WithError(entity.ErrEmailHasExisted.Error())
+		return nil, core.ErrBadRequest.WithError(entity.ErrEmailHasExisted.Error())
 	} else if err != core.ErrRecordNotFound {
-		return core.ErrInternalServerError.WithError(entity.ErrCannotRegister.Error()).WithDebug(err.Error())
+		return nil, core.ErrInternalServerError.WithError(entity.ErrCannotRegister.Error()).WithDebug(err.Error())
 	}
 
-	newUserId, err := biz.userRepository.CreateUser(ctx, data.FirstName, data.LastName, data.Email)
+	newUserId, err := biz.userRepository.CreateUser(ctx, data.FirstName, data.LastName, data.AuthEmailPassword.Email)
 
 	if err != nil {
-		return core.ErrInternalServerError.WithError(entity.ErrCannotRegister.Error()).WithDebug(err.Error())
+		return nil, core.ErrInternalServerError.WithError(entity.ErrCannotRegister.Error()).WithDebug(err.Error())
 	}
 
 	salt, err := biz.hasher.RandomStr(16)
 
 	if err != nil {
-		return core.ErrInternalServerError.WithError(entity.ErrCannotRegister.Error()).WithDebug(err.Error())
+		return nil, core.ErrInternalServerError.WithError(entity.ErrCannotRegister.Error()).WithDebug(err.Error())
 	}
 
-	passHashed, err := biz.hasher.HashPassword(salt, data.Password)
+	passHashed, err := biz.hasher.HashPassword(salt, data.AuthEmailPassword.Password)
 
 	if err != nil {
-		return core.ErrInternalServerError.WithError(entity.ErrCannotRegister.Error()).WithDebug(err.Error())
+		return nil, core.ErrInternalServerError.WithError(entity.ErrCannotRegister.Error()).WithDebug(err.Error())
 	}
 
-	newAuth := entity.NewAuthWithEmailPassword(newUserId, data.Email, salt, passHashed)
+	newAuth := entity.NewAuthWithEmailPassword(newUserId, data.AuthEmailPassword.Email, salt, passHashed)
 
 	if err := biz.repository.AddNewAuth(ctx, &newAuth); err != nil {
-		return core.ErrInternalServerError.WithError(entity.ErrCannotRegister.Error()).WithDebug(err.Error())
+		return nil, core.ErrInternalServerError.WithError(entity.ErrCannotRegister.Error()).WithDebug(err.Error())
 	}
 
-	return nil
+	return &empty.Empty{}, nil
 }
 
 func (biz *business) IntrospectToken(ctx context.Context, accessToken string) (*jwt.RegisteredClaims, error) {

@@ -2,12 +2,12 @@ package entity
 
 import "net/mail"
 
-func emailIsValid(s string) bool {
+func EmailIsValid(s string) bool {
 	_, err := mail.ParseAddress(s)
 	return err == nil
 }
 
-func checkPassword(s string) error {
+func CheckPassword(s string) error {
 	if len(s) < 8 || len(s) > 30 {
 		return ErrPasswordIsNotValid
 	}
@@ -15,7 +15,7 @@ func checkPassword(s string) error {
 	return nil
 }
 
-func checkFirstName(s string) error {
+func CheckFirstName(s string) error {
 	if s == "" {
 		return ErrFirstNameIsEmpty
 	}
@@ -27,7 +27,7 @@ func checkFirstName(s string) error {
 	return nil
 }
 
-func checkLastName(s string) error {
+func CheckLastName(s string) error {
 	if s == "" {
 		return ErrLastNameIsEmpty
 	}

@@ -60,9 +60,9 @@ var rootCmd = &cobra.Command{
 
 		go StartGRPCServices(serviceCtx)
 
-		v1 := router.Group("/v1")
-
-		SetupRoutes(v1, serviceCtx)
+		//v1 := router.Group("/api/v1/user")
+		//
+		//SetupRoutes(v1, serviceCtx)
 
 		if err := router.Run(fmt.Sprintf(":%d", ginComp.GetPort())); err != nil {
 			logger.Fatal(err)
@@ -70,12 +70,12 @@ var rootCmd = &cobra.Command{
 	},
 }
 
-func SetupRoutes(router *gin.RouterGroup, serviceCtx sctx.ServiceContext) {
-	authAPIService := composer.ComposeAuthAPIService(serviceCtx)
-
-	router.POST("/authenticate", authAPIService.LoginHdl())
-	router.POST("/register", authAPIService.RegisterHdl())
-}
+//func SetupRoutes(router *gin.RouterGroup, serviceCtx sctx.ServiceContext) {
+//	authAPIService := composer.ComposeAuthAPIService(serviceCtx)
+//
+//	router.POST("/authenticate", authAPIService.LoginHdl())
+//	router.POST("/register", authAPIService.RegisterHdl())
+//}
 
 func StartGRPCServices(serviceCtx sctx.ServiceContext) {
 	configComp := serviceCtx.MustGet(common.KeyCompConf).(common.Config)
@@ -92,6 +92,7 @@ func StartGRPCServices(serviceCtx sctx.ServiceContext) {
 	s := grpc.NewServer()
 
 	pb.RegisterAuthServiceServer(s, composer.ComposeAuthGRPCService(serviceCtx))
+	pb.RegisterUserAuthServiceServer(s, composer.ComposeUserAuthGRPCService(serviceCtx))
 
 	if err := s.Serve(lis); err != nil {
 		log.Fatalln(err)

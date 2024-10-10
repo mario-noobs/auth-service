@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "pb/";
+
+import "google/protobuf/empty.proto";
+
+// Token represents a JWT token and its expiration details.
+message Token {
+  string token = 1;       // The JWT token string.
+  int32 expired_in = 2;   // Expiration time in seconds.
+}
+
+// TokenResponse represents the response containing access and refresh tokens.
+message TokenResponse {
+  Token access_token = 1;      // The access token.
+  Token refresh_token = 2;     // The refresh token (optional).
+}
+
+// AuthRegister represents user registration details.
+message AuthRegister {
+  string first_name = 1;            // User's first name.
+  string last_name = 2;             // User's last name.
+  AuthEmailPassword auth_email_password = 3; // Authentication details.
+}
+
+// AuthEmailPassword represents user authentication details using email and password.
+message AuthEmailPassword {
+  string email = 1;                 // User's email address.
+  string password = 2;              // User's password.
+}
+
+// AuthService is the service definition for authentication.
+service UserAuthService {
+  // Login method authenticates a user and returns a token response.
+  rpc Login(AuthEmailPassword) returns (TokenResponse);
+
+  // Register method registers a new user.
+  rpc Register(AuthRegister) returns (google.protobuf.Empty);
+}

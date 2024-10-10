@@ -3,6 +3,7 @@ package entity
 import "errors"
 
 var (
+	Success               = "Success"
 	ErrPasswordIsNotValid = errors.New("password must have from 8 to 30 characters")
 	ErrEmailIsNotValid    = errors.New("email is not valid")
 	ErrEmailHasExisted    = errors.New("email has existed")
