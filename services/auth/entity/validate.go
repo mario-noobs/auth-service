@@ -1,6 +1,8 @@
 package entity
 
-import "net/mail"
+import (
+	"net/mail"
+)
 
 func EmailIsValid(s string) bool {
 	_, err := mail.ParseAddress(s)

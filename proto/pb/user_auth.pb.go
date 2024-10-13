@@ -271,7 +271,20 @@ func (ad *AuthEmailPassword) Validate() error {
 	return nil
 }
 
+func CheckAuthEmail(s *AuthRegister) error {
+	if s.AuthEmailPassword == nil {
+		return entity.ErrEmailPasswordIsEmpty
+	}
+
+	return nil
+}
+
 func (ar *AuthRegister) Validate() error {
+
+	if err := CheckAuthEmail(ar); err != nil {
+		return err
+	}
+
 	if err := ar.AuthEmailPassword.Validate(); err != nil {
 		return err
 	}
