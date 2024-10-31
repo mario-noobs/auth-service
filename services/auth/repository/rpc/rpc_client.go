@@ -21,7 +21,7 @@ func NewClient(client pb.UserServiceClient) *rpcClient {
 }
 
 func (c *rpcClient) CreateUser(ctx context.Context, firstName, lastName, email string) (newId int, err error) {
-	var method = "CreateUser_SQL"
+	var method = "CreateUser_gRPC"
 	c.time.Start()
 	logger.Info("request", "method", method)
 
