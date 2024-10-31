@@ -66,7 +66,7 @@ upload:
   rules:
     - if: $CI_COMMIT_TAG
   script:
-    - 'curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file auth-service-${CI_COMMIT_TAG} ${PACKAGE_REGISTRY_URL}/auth-servicet-${CI_COMMIT_TAG}'
+    - 'curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file auth-service-${CI_COMMIT_TAG} ${PACKAGE_REGISTRY_URL}/auth-service-${CI_COMMIT_TAG}'
 
 release:
   stage: release
