@@ -3,12 +3,14 @@ package mysql
 import (
 	"context"
 	"demo-service/helpers"
+
 	"demo-service/services/auth/entity"
+	"log/slog"
+	"os"
+
 	"github.com/pkg/errors"
 	"github.com/viettranx/service-context/core"
 	"gorm.io/gorm"
-	"log/slog"
-	"os"
 )
 
 var logger = slog.New(slog.NewJSONHandler(os.Stdout, nil))

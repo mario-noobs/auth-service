@@ -5,6 +5,7 @@ go 1.23
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/gin-gonic/gin v1.9.0
+	github.com/go-redis/redis/v8 v8.11.5
 	github.com/golang-jwt/jwt/v5 v5.0.0-rc.1
 	github.com/golang/protobuf v1.5.2
 	github.com/google/uuid v1.3.0
@@ -22,8 +23,10 @@ require (
 require (
 	github.com/btcsuite/btcutil v1.0.2 // indirect
 	github.com/bytedance/sonic v1.8.0 // indirect
+	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/facebookgo/flagenv v0.0.0-20160425205200-fcd59fca7456 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect

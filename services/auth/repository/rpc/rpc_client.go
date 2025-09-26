@@ -4,9 +4,10 @@ import (
 	"context"
 	"demo-service/helpers"
 	"demo-service/proto/pb"
-	"github.com/pkg/errors"
 	"log/slog"
 	"os"
+
+	"github.com/pkg/errors"
 )
 
 var logger = slog.New(slog.NewJSONHandler(os.Stdout, nil))
