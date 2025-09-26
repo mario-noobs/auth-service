@@ -38,6 +38,10 @@ func (c *CustomJWTComponent) ParseToken(ctx context.Context, tokenString string)
 	return c.provider.ParseToken(ctx, tokenString)
 }
 
+func (c *CustomJWTComponent) IssueRefreshToken(ctx context.Context, id, sub string) (string, int, error) {
+	return c.provider.IssueRefreshToken(ctx, id, sub)
+}
+
 func (c *CustomJWTComponent) Activate(serviceCtx sctx.ServiceContext) error {
 	// Registration skipped or update this if you find the correct method in serviceCtx
 	return nil

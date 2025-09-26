@@ -4,11 +4,12 @@ import (
 	"context"
 	"demo-service/helpers"
 	"demo-service/proto/pb"
+	"log/slog"
+	"os"
+
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/pkg/errors"
-	"log/slog"
-	"os"
 )
 
 var logger = slog.New(slog.NewJSONHandler(os.Stdout, nil))
@@ -88,4 +89,19 @@ func (s *grpcService) Logout(ctx context.Context, req *pb.LogoutRequest) (*empty
 
 	logger.Info("response", "method", method, "data", "logout successful", "ms", s.time.End())
 	return result, nil
+}
+
+func (s *grpcService) RefreshToken(ctx context.Context, req *pb.RefreshTokenRequest) (*pb.TokenResponse, error) {
+	var method = "RefreshToken"
+	s.time.Start()
+	logger.Info("request", "method", method)
+
+	response, err := s.business.RefreshToken(ctx, req.RefreshToken)
+	if err != nil {
+		logger.Error("response", "method", method, "err", err, "ms", s.time.End())
+		return nil, errors.WithStack(err)
+	}
+
+	logger.Info("response", "method", method, "data", "tokens refreshed", "ms", s.time.End())
+	return response, nil
 }

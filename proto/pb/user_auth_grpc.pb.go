@@ -8,6 +8,7 @@ package pb
 
 import (
 	context "context"
+
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -20,9 +21,10 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	UserAuthService_Login_FullMethodName    = "/pb.UserAuthService/Login"
-	UserAuthService_Register_FullMethodName = "/pb.UserAuthService/Register"
-	UserAuthService_Logout_FullMethodName   = "/pb.UserAuthService/Logout"
+	UserAuthService_Login_FullMethodName        = "/pb.UserAuthService/Login"
+	UserAuthService_Register_FullMethodName     = "/pb.UserAuthService/Register"
+	UserAuthService_Logout_FullMethodName       = "/pb.UserAuthService/Logout"
+	UserAuthService_RefreshToken_FullMethodName = "/pb.UserAuthService/RefreshToken"
 )
 
 // UserAuthServiceClient is the client API for UserAuthService service.
@@ -37,6 +39,8 @@ type UserAuthServiceClient interface {
 	Register(ctx context.Context, in *AuthRegister, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// Logout method revokes/blacklists an access token.
 	Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// RefreshToken method exchanges a refresh token for new access and refresh tokens.
+	RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*TokenResponse, error)
 }
 
 type userAuthServiceClient struct {
@@ -77,6 +81,16 @@ func (c *userAuthServiceClient) Logout(ctx context.Context, in *LogoutRequest, o
 	return out, nil
 }
 
+func (c *userAuthServiceClient) RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*TokenResponse, error) {
+	//cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TokenResponse)
+	err := c.cc.Invoke(ctx, UserAuthService_RefreshToken_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserAuthServiceServer is the server API for UserAuthService service.
 // All implementations must embed UnimplementedUserAuthServiceServer
 // for forward compatibility.
@@ -89,6 +103,8 @@ type UserAuthServiceServer interface {
 	Register(context.Context, *AuthRegister) (*emptypb.Empty, error)
 	// Logout method revokes/blacklists an access token.
 	Logout(context.Context, *LogoutRequest) (*emptypb.Empty, error)
+	// RefreshToken method exchanges a refresh token for new access and refresh tokens.
+	RefreshToken(context.Context, *RefreshTokenRequest) (*TokenResponse, error)
 	//mustEmbedUnimplementedUserAuthServiceServer()
 }
 
@@ -107,6 +123,9 @@ func (UnimplementedUserAuthServiceServer) Register(context.Context, *AuthRegiste
 }
 func (UnimplementedUserAuthServiceServer) Logout(context.Context, *LogoutRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Logout not implemented")
+}
+func (UnimplementedUserAuthServiceServer) RefreshToken(context.Context, *RefreshTokenRequest) (*TokenResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RefreshToken not implemented")
 }
 func (UnimplementedUserAuthServiceServer) mustEmbedUnimplementedUserAuthServiceServer() {}
 func (UnimplementedUserAuthServiceServer) testEmbeddedByValue()                         {}
@@ -183,6 +202,24 @@ func _UserAuthService_Logout_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserAuthService_RefreshToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RefreshTokenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserAuthServiceServer).RefreshToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserAuthService_RefreshToken_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserAuthServiceServer).RefreshToken(ctx, req.(*RefreshTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserAuthService_ServiceDesc is the grpc.ServiceDesc for UserAuthService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -201,6 +238,10 @@ var UserAuthService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Logout",
 			Handler:    _UserAuthService_Logout_Handler,
+		},
+		{
+			MethodName: "RefreshToken",
+			Handler:    _UserAuthService_RefreshToken_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

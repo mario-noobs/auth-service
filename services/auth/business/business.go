@@ -200,7 +200,7 @@ func (biz *business) Logout(ctx context.Context, accessToken string) (*empty.Emp
 	remainingTime := claims.ExpiresAt.Sub(time.Now())
 	if remainingTime <= 0 {
 		// Token already expired, no need to blacklist
-		logger.Info("response", "method", method, "data", "token already expired", "ms", biz.time.End())
+		logger.Info("response", "method", method, "data", "IntrospectToken_Businessed", "ms", biz.time.End())
 		return &empty.Empty{}, nil
 	}
 
