@@ -65,9 +65,21 @@ func (rtm *RedisTokenManager) BlacklistToken(ctx context.Context, token string, 
 		return nil
 	}
 
+	// Handle empty token
+	if strings.TrimSpace(token) == "" {
+		log.Printf("Empty token provided, skipping blacklisting")
+		return nil
+	}
+
 	// Remove Bearer prefix if present
 	if strings.HasPrefix(token, "Bearer ") {
 		token = strings.TrimPrefix(token, "Bearer ")
+	}
+
+	// Handle zero or negative TTL
+	if expiration <= 0 {
+		log.Printf("Invalid expiration time: %v, skipping blacklisting", expiration)
+		return nil
 	}
 
 	key := fmt.Sprintf("blacklist:token:%s", token)
@@ -86,6 +98,11 @@ func (rtm *RedisTokenManager) BlacklistToken(ctx context.Context, token string, 
 func (rtm *RedisTokenManager) IsTokenBlacklisted(ctx context.Context, token string) bool {
 	if rtm.client == nil {
 		return false // If Redis is not available, assume token is not blacklisted
+	}
+
+	// Handle empty token
+	if strings.TrimSpace(token) == "" {
+		return false
 	}
 
 	// Remove Bearer prefix if present
