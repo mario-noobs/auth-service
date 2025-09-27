@@ -18,7 +18,6 @@ import (
 	"github.com/viettranx/service-context/component/ginc"
 	smdlw "github.com/viettranx/service-context/component/ginc/middleware"
 	"github.com/viettranx/service-context/component/gormc"
-	"github.com/viettranx/service-context/component/jwtc"
 	"google.golang.org/grpc"
 )
 
@@ -27,7 +26,7 @@ func newServiceCtx() sctx.ServiceContext {
 		sctx.WithName("Demo Microservices"),
 		sctx.WithComponent(ginc.NewGin(common.KeyCompGIN)),
 		sctx.WithComponent(gormc.NewGormDB(common.KeyCompMySQL, "")),
-		sctx.WithComponent(jwtc.NewJWT(common.KeyCompJWT)),
+		sctx.WithComponent(NewCustomJWTComponent(common.KeyCompJWT)),
 		sctx.WithComponent(NewConfig()),
 	)
 }

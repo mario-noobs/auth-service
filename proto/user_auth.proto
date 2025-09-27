@@ -31,6 +31,16 @@ message AuthEmailPassword {
   string password = 2;              // User's password.
 }
 
+// LogoutRequest represents a logout request with the access token to be revoked.
+message LogoutRequest {
+  string access_token = 1;          // The access token to be blacklisted.
+}
+
+// RefreshTokenRequest represents a refresh token request.
+message RefreshTokenRequest {
+  string refresh_token = 1;         // The refresh token to exchange for new tokens.
+}
+
 // AuthService is the service definition for authentication.
 service UserAuthService {
   // Login method authenticates a user and returns a token response.
@@ -38,4 +48,10 @@ service UserAuthService {
 
   // Register method registers a new user.
   rpc Register(AuthRegister) returns (google.protobuf.Empty);
+
+  // Logout method revokes/blacklists an access token.
+  rpc Logout(LogoutRequest) returns (google.protobuf.Empty);
+
+  // RefreshToken method exchanges a refresh token for new access and refresh tokens.
+  rpc RefreshToken(RefreshTokenRequest) returns (TokenResponse);
 }
